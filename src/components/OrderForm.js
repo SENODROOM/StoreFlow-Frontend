@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
+const API_BASE_URL = 'https://store-flow-api.vercel.app';
+
 const OrderForm = () => {
   const [formData, setFormData] = useState({
     customerName: '',
@@ -11,6 +13,7 @@ const OrderForm = () => {
   });
 
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { token } = useContext(AuthContext);
 
   const handleChange = (e) => {
@@ -22,14 +25,25 @@ const OrderForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    if (!token) {
+      setMessage({
+        type: 'error',
+        text: 'You must be logged in to place an order.'
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      const response = await axios.post('http://localhost:5000/api/orders', formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/orders`, formData, {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.data.success) {
         setMessage({ type: 'success', text: 'Order placed successfully!' });
         setFormData({
@@ -38,27 +52,31 @@ const OrderForm = () => {
           customerAddress: '',
           product: ''
         });
-        
+
         setTimeout(() => {
           setMessage({ type: '', text: '' });
         }, 3000);
       }
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Error placing order. Please try again.' 
+      console.error('Order submission error:', error.response?.data || error.message);
+
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error placing order. Please try again.'
       });
-      
+
       setTimeout(() => {
         setMessage({ type: '', text: '' });
       }, 3000);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="form-container">
       <h2>Place New Order</h2>
-      
+
       {message.text && (
         <div className={message.type === 'success' ? 'success-message' : 'error-message'}>
           {message.text}
@@ -76,6 +94,7 @@ const OrderForm = () => {
             onChange={handleChange}
             required
             placeholder="Enter customer name"
+            disabled={isSubmitting}
           />
         </div>
 
@@ -89,6 +108,7 @@ const OrderForm = () => {
             onChange={handleChange}
             required
             placeholder="Enter phone number"
+            disabled={isSubmitting}
           />
         </div>
 
@@ -101,6 +121,7 @@ const OrderForm = () => {
             onChange={handleChange}
             required
             placeholder="Enter customer address"
+            disabled={isSubmitting}
           />
         </div>
 
@@ -114,11 +135,12 @@ const OrderForm = () => {
             onChange={handleChange}
             required
             placeholder="Enter product name"
+            disabled={isSubmitting}
           />
         </div>
 
-        <button type="submit" className="submit-btn">
-          Add Order
+        <button type="submit" className="submit-btn" disabled={isSubmitting}>
+          {isSubmitting ? 'Adding Order...' : 'Add Order'}
         </button>
       </form>
     </div>
