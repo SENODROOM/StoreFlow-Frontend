@@ -12,7 +12,7 @@ const PurchasedProducts = () => {
   const [loading, setLoading] = useState(true);
   const [editingOrder, setEditingOrder] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    product: '',
+    products: [],
     customerName: '',
     customerPhone: '',
     customerAddress: ''
@@ -46,7 +46,6 @@ const PurchasedProducts = () => {
   }, [fetchOrders, token]);
 
   useEffect(() => {
-    // Group orders by customer name
     const grouped = orders.reduce((acc, order) => {
       const customerKey = order.customerName;
       if (!acc[customerKey]) {
@@ -61,7 +60,6 @@ const PurchasedProducts = () => {
       return acc;
     }, {});
 
-    // Sort orders by date (newest first) for each customer
     Object.keys(grouped).forEach(key => {
       grouped[key].orders.sort((a, b) => new Date(b.orderTime) - new Date(a.orderTime));
     });
@@ -89,6 +87,13 @@ const PurchasedProducts = () => {
     }
   }, [searchQuery, groupedOrders]);
 
+  const calculateOrderTotal = (order) => {
+    if (!order.products || !Array.isArray(order.products)) return 0;
+    return order.products.reduce((total, product) => {
+      return total + (product.price || 0) * (product.quantity || 0);
+    }, 0);
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       try {
@@ -109,7 +114,7 @@ const PurchasedProducts = () => {
   const handleEdit = (order) => {
     setEditingOrder(order);
     setEditFormData({
-      product: order.product,
+      products: order.products || [],
       customerName: order.customerName,
       customerPhone: order.customerPhone,
       customerAddress: order.customerAddress
@@ -122,6 +127,32 @@ const PurchasedProducts = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleProductChange = (index, field, value) => {
+    const updatedProducts = [...editFormData.products];
+    updatedProducts[index][field] = value;
+    setEditFormData(prev => ({
+      ...prev,
+      products: updatedProducts
+    }));
+  };
+
+  const addProduct = () => {
+    setEditFormData(prev => ({
+      ...prev,
+      products: [...prev.products, { name: '', quantity: 1, price: 0 }]
+    }));
+  };
+
+  const removeProduct = (index) => {
+    if (editFormData.products.length > 1) {
+      const updatedProducts = editFormData.products.filter((_, i) => i !== index);
+      setEditFormData(prev => ({
+        ...prev,
+        products: updatedProducts
+      }));
+    }
   };
 
   const handleUpdateOrder = async (e) => {
@@ -145,7 +176,7 @@ const PurchasedProducts = () => {
   const handleCancelEdit = () => {
     setEditingOrder(null);
     setEditFormData({
-      product: '',
+      products: [],
       customerName: '',
       customerPhone: '',
       customerAddress: ''
@@ -213,7 +244,37 @@ const PurchasedProducts = () => {
                   {customer.orders.map((order) => (
                     <div key={order._id} className="order-item">
                       <div className="order-item-header">
-                        <div className="product-name">{order.product}</div>
+                        <div className="order-item-content">
+                          <div className="product-list">
+                            {order.products && Array.isArray(order.products) ? (
+                              order.products.map((product, idx) => (
+                                <div key={idx} className="product-item">
+                                  <div className="product-details">
+                                    <span className="product-name">{product.name}</span>
+                                    <span className="product-quantity">Qty: {product.quantity}</span>
+                                    <span className="product-price">PKR {product.price.toFixed(2)}</span>
+                                  </div>
+                                  <span className="product-subtotal-price">
+                                    PKR {(product.price * product.quantity).toFixed(2)}
+                                  </span>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="product-item">
+                                <span className="product-name">{order.product || 'N/A'}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {order.products && Array.isArray(order.products) && (
+                            <div className="order-total-price">
+                              <strong>Total: PKR {calculateOrderTotal(order).toFixed(2)}</strong>
+                            </div>
+                          )}
+
+                          <div className="order-date">{formatDate(order.orderTime)}</div>
+                        </div>
+
                         <div className="order-actions">
                           <button
                             className="edit-btn-small"
@@ -231,7 +292,6 @@ const PurchasedProducts = () => {
                           </button>
                         </div>
                       </div>
-                      <div className="order-date">{formatDate(order.orderTime)}</div>
                     </div>
                   ))}
                 </div>
@@ -250,16 +310,6 @@ const PurchasedProducts = () => {
               <button className="modal-close" onClick={handleCancelEdit}>✕</button>
             </div>
             <form onSubmit={handleUpdateOrder} className="edit-form">
-              <div className="form-group">
-                <label>Product Name</label>
-                <input
-                  type="text"
-                  name="product"
-                  value={editFormData.product}
-                  onChange={handleEditChange}
-                  required
-                />
-              </div>
               <div className="form-group">
                 <label>Customer Name</label>
                 <input
@@ -290,6 +340,69 @@ const PurchasedProducts = () => {
                   rows="3"
                 />
               </div>
+
+              <div className="products-section">
+                <div className="products-header">
+                  <h3>Products</h3>
+                  <button type="button" className="add-product-btn" onClick={addProduct}>
+                    + Add Product
+                  </button>
+                </div>
+
+                {editFormData.products.map((product, index) => (
+                  <div key={index} className="product-row">
+                    <div className="product-fields">
+                      <div className="form-group product-name-group">
+                        <label>Product Name</label>
+                        <input
+                          type="text"
+                          value={product.name}
+                          onChange={(e) => handleProductChange(index, 'name', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-group product-quantity-group">
+                        <label>Quantity</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={product.quantity}
+                          onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-group product-price-group">
+                        <label>Price (PKR)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={product.price}
+                          onChange={(e) => handleProductChange(index, 'price', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-group product-total-group">
+                        <label>Subtotal</label>
+                        <div className="product-subtotal">
+                          PKR {((parseFloat(product.price) || 0) * (parseInt(product.quantity) || 0)).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                    {editFormData.products.length > 1 && (
+                      <button
+                        type="button"
+                        className="remove-product-btn"
+                        onClick={() => removeProduct(index)}
+                        title="Remove product"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
               <div className="modal-actions">
                 <button type="button" className="cancel-btn" onClick={handleCancelEdit}>
                   Cancel
