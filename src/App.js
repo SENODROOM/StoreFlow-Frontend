@@ -4,6 +4,7 @@ import { AuthProvider, AuthContext } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Login from './components/Login';
 import Register from './components/Register';
+import Dashboard from './components/Dashboard';
 import OrderForm from './components/OrderForm';
 import PurchasedProducts from './components/PurchasedProducts';
 import './App.css';
@@ -14,7 +15,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-container">
-        <h1 className="nav-logo">StoreFLow</h1>
+        <h1 className="nav-logo">StoreFlow</h1>
         {user ? (
           <div className="nav-right">
             <div className="user-info">
@@ -23,7 +24,10 @@ function Navbar() {
             </div>
             <ul className="nav-menu">
               <li className="nav-item">
-                <Link to="/" className="nav-link">New Order</Link>
+                <Link to="/dashboard" className="nav-link">Dashboard</Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/new-order" className="nav-link">New Order</Link>
               </li>
               <li className="nav-item">
                 <Link to="/purchased-products" className="nav-link">Purchased Products</Link>
@@ -49,16 +53,33 @@ function Navbar() {
 }
 
 function AppContent() {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="App">
       <Navbar />
       <Routes>
-        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         <Route
-          path="/"
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/new-order"
           element={
             <PrivateRoute>
               <OrderForm />
@@ -73,6 +94,7 @@ function AppContent() {
             </PrivateRoute>
           }
         />
+        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
       </Routes>
     </div>
   );

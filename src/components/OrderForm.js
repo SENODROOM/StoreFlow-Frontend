@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
@@ -15,15 +15,112 @@ const OrderForm = () => {
     { name: '', quantity: 1, price: 0 }
   ]);
 
+  const [existingCustomers, setExistingCustomers] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [showCustomerInfo, setShowCustomerInfo] = useState(false);
+
   const [message, setMessage] = useState({ type: '', text: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { token } = useContext(AuthContext);
 
+  // Fetch existing customers
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      if (!token) return;
+
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/orders`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.data.success) {
+          // Extract unique customers from orders
+          const customersMap = new Map();
+          response.data.data.forEach(order => {
+            if (!customersMap.has(order.customerName)) {
+              customersMap.set(order.customerName, {
+                name: order.customerName,
+                phone: order.customerPhone,
+                address: order.customerAddress,
+                totalOrders: 1,
+                orders: [order]
+              });
+            } else {
+              const customer = customersMap.get(order.customerName);
+              customer.totalOrders++;
+              customer.orders.push(order);
+            }
+          });
+
+          setExistingCustomers(Array.from(customersMap.values()));
+        }
+      } catch (error) {
+        console.error('Error fetching customers:', error);
+      }
+    };
+
+    fetchCustomers();
+  }, [token]);
+
+  // Filter customers based on input
+  useEffect(() => {
+    if (formData.customerName.trim() === '') {
+      setFilteredCustomers([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    const filtered = existingCustomers.filter(customer =>
+      customer.name.toLowerCase().includes(formData.customerName.toLowerCase())
+    );
+
+    setFilteredCustomers(filtered);
+    setShowDropdown(filtered.length > 0);
+  }, [formData.customerName, existingCustomers]);
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+
+    // Reset selected customer when manually typing
+    if (name === 'customerName') {
+      setSelectedCustomer(null);
+      setShowCustomerInfo(false);
+    }
+  };
+
+  const handleCustomerSelect = (customer) => {
+    setFormData({
+      customerName: customer.name,
+      customerPhone: customer.phone,
+      customerAddress: customer.address
+    });
+    setSelectedCustomer(customer);
+    setShowDropdown(false);
+    setShowCustomerInfo(false); // Hide info initially
+  };
+
+  const toggleCustomerInfo = () => {
+    setShowCustomerInfo(!showCustomerInfo);
+  };
+
+  const calculateCustomerTotal = (customer) => {
+    return customer.orders.reduce((total, order) => {
+      if (order.products && Array.isArray(order.products)) {
+        return total + order.products.reduce((orderTotal, product) => {
+          return orderTotal + (product.price || 0) * (product.quantity || 0);
+        }, 0);
+      }
+      return total;
+    }, 0);
   };
 
   const handleProductChange = (index, field, value) => {
@@ -61,7 +158,6 @@ const OrderForm = () => {
       return;
     }
 
-    // Validate products
     const hasEmptyProducts = products.some(p => !p.name.trim());
     if (hasEmptyProducts) {
       setMessage({
@@ -74,7 +170,6 @@ const OrderForm = () => {
     setIsSubmitting(true);
 
     try {
-      // Format products for backend
       const formattedProducts = products.map(p => ({
         name: p.name,
         quantity: parseInt(p.quantity) || 1,
@@ -96,13 +191,42 @@ const OrderForm = () => {
       if (response.data.success) {
         setMessage({ type: 'success', text: 'Order placed successfully!' });
 
-        // Reset form
         setFormData({
           customerName: '',
           customerPhone: '',
           customerAddress: ''
         });
         setProducts([{ name: '', quantity: 1, price: 0 }]);
+        setSelectedCustomer(null);
+        setShowCustomerInfo(false);
+
+        // Refresh customer list
+        const refreshResponse = await axios.get(`${API_BASE_URL}/api/orders`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (refreshResponse.data.success) {
+          const customersMap = new Map();
+          refreshResponse.data.data.forEach(order => {
+            if (!customersMap.has(order.customerName)) {
+              customersMap.set(order.customerName, {
+                name: order.customerName,
+                phone: order.customerPhone,
+                address: order.customerAddress,
+                totalOrders: 1,
+                orders: [order]
+              });
+            } else {
+              const customer = customersMap.get(order.customerName);
+              customer.totalOrders++;
+              customer.orders.push(order);
+            }
+          });
+          setExistingCustomers(Array.from(customersMap.values()));
+        }
 
         setTimeout(() => {
           setMessage({ type: '', text: '' });
@@ -124,6 +248,15 @@ const OrderForm = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   return (
     <div className="form-container">
       <h2>Place New Order</h2>
@@ -135,19 +268,98 @@ const OrderForm = () => {
       )}
 
       <form className="order-form" onSubmit={handleSubmit}>
-        <div className="form-group">
+        <div className="form-group customer-name-group">
           <label htmlFor="customerName">Customer Name *</label>
-          <input
-            type="text"
-            id="customerName"
-            name="customerName"
-            value={formData.customerName}
-            onChange={handleChange}
-            required
-            placeholder="Enter customer name"
-            disabled={isSubmitting}
-          />
+          <div className="autocomplete-wrapper">
+            <input
+              type="text"
+              id="customerName"
+              name="customerName"
+              value={formData.customerName}
+              onChange={handleChange}
+              onFocus={() => formData.customerName && setShowDropdown(filteredCustomers.length > 0)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+              required
+              placeholder="Enter customer name"
+              disabled={isSubmitting}
+              autoComplete="off"
+            />
+
+            {showDropdown && (
+              <div className="autocomplete-dropdown">
+                {filteredCustomers.map((customer, index) => (
+                  <div
+                    key={index}
+                    className="autocomplete-item"
+                    onClick={() => handleCustomerSelect(customer)}
+                  >
+                    <div className="autocomplete-item-main">
+                      <span className="autocomplete-name">{customer.name}</span>
+                      <span className="autocomplete-badge">{customer.totalOrders} orders</span>
+                    </div>
+                    <div className="autocomplete-item-details">
+                      <span>{customer.phone}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {selectedCustomer && (
+            <button
+              type="button"
+              className="view-customer-info-btn"
+              onClick={toggleCustomerInfo}
+            >
+              {showCustomerInfo ? '▼ Hide' : '▶ View'} Customer History
+            </button>
+          )}
         </div>
+
+        {showCustomerInfo && selectedCustomer && (
+          <div className="customer-info-panel">
+            <div className="customer-info-header">
+              <h3>{selectedCustomer.name}'s Order History</h3>
+              <div className="customer-stats">
+                <div className="stat-item">
+                  <span className="stat-label">Total Orders:</span>
+                  <span className="stat-value">{selectedCustomer.totalOrders}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Total Spent:</span>
+                  <span className="stat-value">PKR {calculateCustomerTotal(selectedCustomer).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="customer-orders-list">
+              {selectedCustomer.orders.slice(0, 5).map((order, idx) => (
+                <div key={idx} className="customer-order-item">
+                  <div className="order-item-date">{formatDate(order.orderTime)}</div>
+                  <div className="order-item-products">
+                    {order.products && Array.isArray(order.products) ? (
+                      order.products.map((product, pIdx) => (
+                        <div key={pIdx} className="product-line">
+                          <span>{product.name}</span>
+                          <span className="product-qty">x{product.quantity}</span>
+                          <span className="product-price">PKR {(product.price * product.quantity).toFixed(2)}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="product-line">{order.product || 'N/A'}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {selectedCustomer.totalOrders > 5 && (
+                <div className="more-orders">
+                  + {selectedCustomer.totalOrders - 5} more orders
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="form-group">
           <label htmlFor="customerPhone">Customer Phone Number *</label>
