@@ -1,6 +1,5 @@
-# StoreFlow Frontend
-
 <div align="center">
+<h1> StoreFlow Frontend </h1>
 
 <img src="public/favicon.png" alt="StoreFlow Frontend" width="200" height="200">
 
