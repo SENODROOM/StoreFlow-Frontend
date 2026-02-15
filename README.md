@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![StoreFlow Frontend](docs/images/logo.png)
+![StoreFlow Frontend](public/favicon.png)
 
 **Modern, responsive frontend for the StoreFlow store management platform**
 
