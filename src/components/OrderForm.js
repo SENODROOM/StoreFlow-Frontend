@@ -2,7 +2,9 @@ import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
-const API_BASE_URL = 'https://store-flow-api.vercel.app';
+import config from '../config';
+
+const API_BASE_URL = config.API_URL;
 
 const OrderForm = () => {
   const [formData, setFormData] = useState({

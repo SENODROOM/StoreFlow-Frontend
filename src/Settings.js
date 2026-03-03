@@ -2,7 +2,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 import axios from 'axios';
 
-const API_BASE_URL = 'https://store-flow-api.vercel.app';
+import config from './config';
+
+const API_BASE_URL = config.API_URL;
 
 const Settings = () => {
     const { user, updateUser } = useContext(AuthContext);

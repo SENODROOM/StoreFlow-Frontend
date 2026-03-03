@@ -1,9 +1,10 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import config from '../config';
 
 export const AuthContext = createContext();
 
-const API_BASE_URL = 'https://store-flow-api.vercel.app';
+const API_BASE_URL = config.API_URL;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
