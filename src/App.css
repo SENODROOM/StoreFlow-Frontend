@@ -103,6 +103,14 @@ body::before {
   transform: scale(1.05);
 }
 
+/* emoji next to logo text */
+.nav-emoji {
+  width: 24px;
+  height: 24px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
 @keyframes fadeInLeft {
   from {
     transform: translateX(-30px);
@@ -412,6 +420,143 @@ body::before {
   .nav-right {
     width: 280px;
   }
+}
+
+/* ========================================
+   SELL PRODUCT PAGE STYLES
+   ======================================== */
+
+.sell-product-container {
+  max-width: 600px;
+  margin: 2.5rem auto;
+  padding: 2rem;
+  background: rgba(255,255,255,0.95);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(14,165,164,0.12);
+  animation: fadeIn 0.8s ease-out;
+}
+
+.sell-product-container h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #0EA5A4 0%, #22C55E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 2.5rem;
+  font-weight: 900;
+}
+
+.sell-product-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.sell-product-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.sell-product-form input,
+.sell-product-form textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.sell-product-form input:focus,
+.sell-product-form textarea:focus {
+  outline: none;
+  border-color: #0ea5a4;
+}
+
+.sell-product-form button {
+  background: linear-gradient(135deg, #0EA5A4 0%, #22C55E 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.sell-product-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sell-product-form button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.product-list {
+  margin-top: 2rem;
+}
+
+.product-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.product-item {
+  background: rgba(255,255,255,0.9);
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.product-info {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.product-desc {
+  margin-top: 0.5rem;
+  color: #4b5563;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+.message {
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.message.success {
+  background: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
+}
+
+.message.error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
 }
 
 /* ========================================
