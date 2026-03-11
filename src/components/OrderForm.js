@@ -1,9 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-//changing
-import DeliveryPopup from './DeliveryPopup';
-//
+
 const API_BASE_URL = 'https://store-flow-api.vercel.app';
 
 const OrderForm = () => {

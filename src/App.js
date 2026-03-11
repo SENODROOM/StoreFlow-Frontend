@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import OrderForm from './components/OrderForm';
 import PurchasedProducts from './components/PurchasedProducts';
 import Settings from './Settings';
+import SellProduct from './components/SellProduct';
 import "./App.css";
 
 function Navbar() {
@@ -80,6 +81,22 @@ function Navbar() {
                     <line x1="8" y1="12" x2="16" y2="12"></line>
                   </svg>
                   New Order
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  to="/sell-product"
+                  className={`nav-link ${isActive('/sell-product') ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                 
+                  <path d="M3 9l1-5h16l1 5"/>
+  <path d="M3 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/>
+  <path d="M5 9v11h14V9"/>
+  <path d="M9 21v-6h6v6"/>
+                  </svg>
+                  Sell Item
                 </Link>
               </li>
               <li className="nav-item">
@@ -168,6 +185,14 @@ function AppContent() {
           element={
             <PrivateRoute>
               <OrderForm />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/sell-product"
+          element={
+            <PrivateRoute>
+              <SellProduct />
             </PrivateRoute>
           }
         />
