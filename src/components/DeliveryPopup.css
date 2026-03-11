@@ -1,0 +1,214 @@
+/* DeliveryPopup.css */
+
+/* Overlay */
+.dp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  padding: 16px;
+}
+
+.dp-overlay--in {
+  opacity: 1;
+}
+
+/* Modal */
+.dp-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  transform: translateY(24px) scale(0.97);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.dp-modal--in {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Header */
+.dp-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.dp-success-ring {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: #ecfdf5;
+  border: 2.5px solid #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  animation: dp-pop 0.4s ease 0.1s both;
+}
+
+@keyframes dp-pop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.dp-success-icon {
+  font-size: 26px;
+  color: #10b981;
+  font-weight: 700;
+}
+
+.dp-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111;
+}
+
+.dp-subtitle {
+  margin: 0;
+  font-size: 13.5px;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* Delivery Card */
+.dp-delivery-card {
+  border: 1.5px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fafafa;
+  border-left: 4px solid var(--accent, #4f8ef7);
+}
+
+.dp-delivery-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dp-delivery-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.dp-delivery-type {
+  font-size: 14px;
+  font-weight: 700;
+  color: #222;
+}
+
+.dp-delivery-desc {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.dp-divider {
+  height: 1px;
+  background: #ebebeb;
+  margin-bottom: 12px;
+}
+
+.dp-delivery-bottom {
+  display: flex;
+  gap: 24px;
+}
+
+.dp-eta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dp-eta-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #999;
+  font-weight: 600;
+}
+
+.dp-eta-days {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.dp-eta-date {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Summary */
+.dp-summary {
+  background: #f7f7f7;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dp-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 13px;
+  color: #555;
+  gap: 12px;
+}
+
+.dp-summary-value {
+  font-weight: 600;
+  color: #222;
+  text-align: right;
+}
+
+.dp-instructions-row {
+  align-items: flex-start;
+}
+
+.dp-instructions-text {
+  font-weight: 400;
+  font-size: 12.5px;
+  color: #555;
+  max-width: 220px;
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* Close Button */
+.dp-close-btn {
+  width: 100%;
+  padding: 13px;
+  background: #4f8ef7;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  font-family: inherit;
+}
+
+.dp-close-btn:hover {
+  background: #3a7de0;
+}
+
+.dp-close-btn:active {
+  transform: scale(0.98);
+}

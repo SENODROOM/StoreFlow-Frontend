@@ -1,7 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-
+//changing
+import DeliveryPopup from './DeliveryPopup';
+//
 const API_BASE_URL = 'https://store-flow-api.vercel.app';
 
 const OrderForm = () => {
@@ -23,6 +25,11 @@ const OrderForm = () => {
 
   const [message, setMessage] = useState({ type: '', text: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  //changings
+  const [shippingType, setShippingType] = useState('standard');
+const [showDeliveryPopup, setShowDeliveryPopup] = useState(false);
+const [completedOrder, setCompletedOrder] = useState(null);
+//
   const { token } = useContext(AuthContext);
 
   // Fetch existing customers
@@ -190,7 +197,13 @@ const OrderForm = () => {
 
       if (response.data.success) {
         setMessage({ type: 'success', text: 'Order placed successfully!' });
-
+//changings
+setCompletedOrder({
+  customerName: formData.customerName,
+  total: calculateTotal()
+});
+setShowDeliveryPopup(true);
+//
         setFormData({
           customerName: '',
           customerPhone: '',
@@ -464,7 +477,22 @@ const OrderForm = () => {
             </div>
           ))}
         </div>
-
+{/* changing */}
+        <div className="form-group">
+  <label htmlFor="shippingType">Shipping Type *</label>
+  <select
+    id="shippingType"
+    value={shippingType}
+    onChange={(e) => setShippingType(e.target.value)}
+    disabled={isSubmitting}
+    style={{ padding: '10px', borderRadius: '6px', border: '1px solid #ddd',
+             fontSize: '14px', fontFamily: 'inherit', width: '100%' }}
+  >
+    <option value="standard">Standard Shipping  (3–5 Business Days)</option>
+    <option value="express">  Express Shipping   (1–2 Business Days)</option>
+    <option value="overnight">  Overnight Shipping (Next Business Day)</option>
+  </select>
+</div> {/*end */}
         <div className="order-total">
           <h3>Total Amount: PKR {calculateTotal().toFixed(2)}</h3>
         </div>
@@ -472,6 +500,13 @@ const OrderForm = () => {
         <button type="submit" className="submit-btn" disabled={isSubmitting}>
           {isSubmitting ? 'Adding Order...' : 'Place Order'}
         </button>
+        {/* changing */}
+        <DeliveryPopup
+  isOpen={showDeliveryPopup}
+  onClose={() => setShowDeliveryPopup(false)}
+  shippingType={shippingType}
+  orderDetails={completedOrder || {}}
+/>{/*end */}
       </form>
     </div>
   );
