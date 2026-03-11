@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import DeliveryPopup from '../components/DeliveryPopup';
 
 const API_BASE_URL = 'https://store-flow-api.vercel.app';
 
@@ -500,11 +501,12 @@ setShowDeliveryPopup(true);
         </button>
         {/* changing */}
         <DeliveryPopup
-  isOpen={showDeliveryPopup}
-  onClose={() => setShowDeliveryPopup(false)}
-  shippingType={shippingType}
-  orderDetails={completedOrder || {}}
-/>{/*end */}
+          isOpen={showDeliveryPopup}
+          onClose={() => setShowDeliveryPopup(false)}
+          shippingType={shippingType}
+          orderDetails={completedOrder || {}}
+        />
+        {/*end */}
       </form>
     </div>
   );

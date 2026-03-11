@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from './context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 
-import config from './config';
+import config from '../config';
 
 const API_BASE_URL = config.API_URL;
 
