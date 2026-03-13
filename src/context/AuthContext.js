@@ -56,11 +56,12 @@ export const AuthProvider = ({ children }) => {
     verifyToken();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, role) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
-        password
+        password,
+        role
       }, {
         headers: {
           'Content-Type': 'application/json'

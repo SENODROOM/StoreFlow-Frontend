@@ -9,6 +9,9 @@ import OrderForm from './pages/OrderForm';
 import PurchasedProducts from './pages/PurchasedProducts';
 import Settings from './pages/Settings';
 import SellProduct from './pages/SellProduct';
+import Inventory from './pages/Inventory';
+import RoleSelection from './pages/RoleSelection';
+import Catalog from './pages/Catalog';
 import "./App.css";
 import Navbar from './components/Navbar';
 
@@ -28,13 +31,16 @@ function AppContent() {
     <div className="App">
       <Navbar />
       <Routes>
-        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
+        <Route path="/role-selection" element={user ? <Navigate to="/" /> : <RoleSelection />} />
+        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+        
+        {/* Shopkeeper Routes */}
         <Route
           path="/dashboard"
           element={
             <PrivateRoute>
-              <Dashboard />
+              {user?.role === 'shopkeeper' ? <Dashboard /> : <Navigate to="/catalog" />}
             </PrivateRoute>
           }
         />
@@ -42,7 +48,15 @@ function AppContent() {
           path="/new-order"
           element={
             <PrivateRoute>
-              <OrderForm />
+              {user?.role === 'shopkeeper' ? <OrderForm /> : <Navigate to="/catalog" />}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <PrivateRoute>
+              {user?.role === 'shopkeeper' ? <Inventory /> : <Navigate to="/catalog" />}
             </PrivateRoute>
           }
         />
@@ -50,15 +64,7 @@ function AppContent() {
           path="/sell-product"
           element={
             <PrivateRoute>
-              <SellProduct />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/purchased-products"
-          element={
-            <PrivateRoute>
-              <PurchasedProducts />
+              {user?.role === 'shopkeeper' ? <SellProduct /> : <Navigate to="/catalog" />}
             </PrivateRoute>
           }
         />
@@ -70,7 +76,35 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+
+        {/* Customer & Shared Routes */}
+        <Route
+          path="/catalog"
+          element={
+            <PrivateRoute>
+              <Catalog />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/purchased-products"
+          element={
+            <PrivateRoute>
+              {user?.role === 'customer' ? <PurchasedProducts /> : <Navigate to="/dashboard" />}
+            </PrivateRoute>
+          }
+        />
+
+        {/* Global Redirects */}
+        <Route path="/" element={
+          user ? (
+            user.role === 'shopkeeper' ? <Navigate to="/dashboard" /> : <Navigate to="/catalog" />
+          ) : (
+            <Navigate to="/role-selection" />
+          )
+        } />
+        
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>
   );
@@ -86,4 +120,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;

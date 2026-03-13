@@ -19,7 +19,7 @@ const PurchasedProducts = () => {
     customerPhone: '',
     customerAddress: ''
   });
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -208,19 +208,21 @@ const PurchasedProducts = () => {
   return (
     <div className="purchased-container">
       <div className="purchased-header">
-        <h2>Purchased Products - Bills</h2>
-        <input
-          type="text"
-          className="search-bar"
-          placeholder="Search by customer name, phone, or address..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+        <h2>{user?.role === 'shopkeeper' ? 'Market Place Management - Bills' : 'My Orders'}</h2>
+        {user?.role === 'shopkeeper' && (
+          <input
+            type="text"
+            className="search-bar"
+            placeholder="Search by customer name, phone, or address..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        )}
       </div>
 
       {Object.keys(filteredCustomers).length === 0 ? (
         <div className="no-orders">
-          {searchQuery ? 'No customers found matching your search.' : 'No orders yet. Place your first order!'}
+          {searchQuery ? 'No customers found matching your search.' : 'No orders found.'}
         </div>
       ) : (
         <div className="customers-list">
@@ -228,19 +230,21 @@ const PurchasedProducts = () => {
             const customer = filteredCustomers[customerKey];
             return (
               <div key={customerKey} className="customer-section">
-                <div className="customer-header">
-                  <div className="customer-info">
-                    <h3 className="customer-name">{customer.customerName}</h3>
-                    <div className="customer-contact">
-                      <span className="phone">{customer.customerPhone}</span>
-                      <span className="separator">•</span>
-                      <span className="address">{customer.customerAddress}</span>
-                    </div>
-                    <div className="total-orders">
-                      Total Orders: {calculateTotal(customer.orders)}
+                {user?.role === 'shopkeeper' && (
+                  <div className="customer-header">
+                    <div className="customer-info">
+                      <h3 className="customer-name">{customer.customerName}</h3>
+                      <div className="customer-contact">
+                        <span className="phone">{customer.customerPhone}</span>
+                        <span className="separator">•</span>
+                        <span className="address">{customer.customerAddress}</span>
+                      </div>
+                      <div className="total-orders">
+                        Total Orders: {calculateTotal(customer.orders)}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 <div className="orders-list">
                   {customer.orders.map((order) => (
@@ -274,25 +278,27 @@ const PurchasedProducts = () => {
                             </div>
                           )}
 
-                          <div className="order-date">{formatDate(order.orderTime)}</div>
+                        <div className="order-date">{formatDate(order.orderTime)}</div>
                         </div>
 
-                        <div className="order-actions">
-                          <button
-                            className="edit-btn-small"
-                            onClick={() => handleEdit(order)}
-                            title="Edit Order"
-                          >
-                            ✎
-                          </button>
-                          <button
-                            className="delete-btn-small"
-                            onClick={() => handleDelete(order._id)}
-                            title="Delete Order"
-                          >
-                            ✕
-                          </button>
-                        </div>
+                        {user?.role === 'shopkeeper' && (
+                          <div className="order-actions">
+                            <button
+                              className="edit-btn-small"
+                              onClick={() => handleEdit(order)}
+                              title="Edit Order"
+                            >
+                              ✎
+                            </button>
+                            <button
+                              className="delete-btn-small"
+                              onClick={() => handleDelete(order._id)}
+                              title="Delete Order"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

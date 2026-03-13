@@ -3,7 +3,9 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import DeliveryPopup from '../components/DeliveryPopup';
 
-const API_BASE_URL = 'https://store-flow-api.vercel.app';
+import config from '../config';
+
+const API_BASE_URL = config.API_URL;
 
 const OrderForm = () => {
   const [formData, setFormData] = useState({
@@ -487,9 +489,9 @@ setShowDeliveryPopup(true);
     style={{ padding: '10px', borderRadius: '6px', border: '1px solid #ddd',
              fontSize: '14px', fontFamily: 'inherit', width: '100%' }}
   >
-    <option value="standard">Standard Shipping  (3–5 Business Days)</option>
-    <option value="express">  Express Shipping   (1–2 Business Days)</option>
-    <option value="overnight">  Overnight Shipping (Next Business Day)</option>
+    <option value="standard">Standard Shipping</option>
+    <option value="express">Express Shipping</option>
+    <option value="overnight">Overnight Shipping</option>
   </select>
 </div> {/*end */}
         <div className="order-total">

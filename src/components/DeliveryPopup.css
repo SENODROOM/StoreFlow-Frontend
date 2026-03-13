@@ -71,7 +71,7 @@
   margin: 0 0 6px;
   font-size: 20px;
   font-weight: 700;
-  color: #111;
+  color: #374151;
 }
 
 .dp-subtitle {
@@ -106,7 +106,7 @@
 .dp-delivery-type {
   font-size: 14px;
   font-weight: 700;
-  color: #222;
+  color: #374151;
 }
 
 .dp-delivery-desc {
@@ -148,7 +148,7 @@
 .dp-eta-date {
   font-size: 15px;
   font-weight: 600;
-  color: #333;
+  color: #4B5563;
 }
 
 /* Summary */
@@ -173,7 +173,7 @@
 
 .dp-summary-value {
   font-weight: 600;
-  color: #222;
+  color: #374151;
   text-align: right;
 }
 

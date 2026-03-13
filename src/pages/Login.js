@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
@@ -9,9 +9,16 @@ const Login = () => {
   });
   const [message, setMessage] = useState({ type: '', text: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(localStorage.getItem('selectedRole') || 'customer');
 
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === 'shopkeeper' ? '/dashboard' : '/catalog');
+    }
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -25,24 +32,28 @@ const Login = () => {
     setIsLoading(true);
     setMessage({ type: '', text: '' });
 
-    const result = await login(formData.email, formData.password);
+    const result = await login(formData.email, formData.password, selectedRole);
 
     if (result.success) {
       setMessage({ type: 'success', text: result.message });
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
+      // Redirect handled by useEffect
     } else {
       setMessage({ type: 'error', text: result.message });
     }
     setIsLoading(false);
   };
 
+  const roleTitle = selectedRole === 'shopkeeper' ? 'Shopkeeper Login' : 'Customer Login';
+  const roleSubtitle = selectedRole === 'shopkeeper' 
+    ? 'Welcome back! Login to manage your inventory' 
+    : 'Welcome! Login to start shopping';
+
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Shopkeeper Login</h2>
-        <p className="auth-subtitle">Welcome back! Login to manage your orders</p>
+        <button className="back-btn" onClick={() => navigate('/role-selection')}>← Back</button>
+        <h2>{roleTitle}</h2>
+        <p className="auth-subtitle">{roleSubtitle}</p>
 
         {message.text && (
           <div className={message.type === 'success' ? 'success-message' : 'error-message'}>

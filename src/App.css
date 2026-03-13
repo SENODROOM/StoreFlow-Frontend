@@ -10,7 +10,7 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  color: #1F2937;
+  color: #374151; /* Softer greyish text */
 }
 
 body::before {
@@ -58,7 +58,8 @@ body::before {
   top: 0;
   z-index: 1000;
   animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  border-bottom: 1px solid rgba(14, 165, 164, 0.12);
+  border-bottom: 1px solid rgba(14, 165, 164, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); /* More subtle shadow */
 }
 
 @keyframes slideDown {
@@ -74,9 +75,9 @@ body::before {
 }
 
 .nav-container {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 0.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -258,7 +259,7 @@ body::before {
 }
 
 .nav-link {
-  color: #1F2937;
+  color: #4B5563; /* Greyish nav links */
   text-decoration: none;
   font-weight: 700;
   padding: 0.75rem 1.5rem;
@@ -423,11 +424,11 @@ body::before {
 }
 
 /* ========================================
-   SELL PRODUCT PAGE STYLES
+   INVENTORY MANAGEMENT STYLES
    ======================================== */
 
-.sell-product-container {
-  max-width: 600px;
+.inventory-container {
+  max-width: 1000px;
   margin: 2.5rem auto;
   padding: 2rem;
   background: rgba(255,255,255,0.95);
@@ -436,9 +437,9 @@ body::before {
   animation: fadeIn 0.8s ease-out;
 }
 
-.sell-product-container h2 {
+.inventory-container h2 {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   background: linear-gradient(135deg, #0EA5A4 0%, #22C55E 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -447,36 +448,60 @@ body::before {
   font-weight: 900;
 }
 
-.sell-product-form .form-group {
-  margin-bottom: 1rem;
+.inventory-form {
+  background: #f8fafc;
+  padding: 2rem;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  border: 1px solid #e2e8f0;
 }
 
-.sell-product-form label {
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.inventory-form .form-group {
+  margin-bottom: 15px;
+}
+
+.inventory-form label {
   display: block;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  color: #374151;
 }
 
-.sell-product-form input,
-.sell-product-form textarea {
+.inventory-form input,
+.inventory-form select,
+.inventory-form textarea {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid #d1d5db;
   border-radius: 12px;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.sell-product-form input:focus,
-.sell-product-form textarea:focus {
+.inventory-form input:focus,
+.inventory-form select:focus {
   outline: none;
   border-color: #0ea5a4;
+  box-shadow: 0 0 0 3px rgba(14, 165, 164, 0.1);
 }
 
-.sell-product-form button {
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.save-btn {
   background: linear-gradient(135deg, #0EA5A4 0%, #22C55E 100%);
   color: white;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 2rem;
   border: none;
   border-radius: 14px;
   font-weight: 700;
@@ -484,60 +509,67 @@ body::before {
   transition: transform 0.3s ease;
 }
 
-.sell-product-form button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.sell-product-form button:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.product-list {
-  margin-top: 2rem;
-}
-
-.product-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.product-item {
-  background: rgba(255,255,255,0.9);
-  padding: 1rem;
+.cancel-btn {
+  background: #64748b;
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
   border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  margin-bottom: 1rem;
-  position: relative;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.product-info {
+.inventory-table-wrapper {
+  overflow-x: auto;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.inventory-table th {
+  background-color: #f1f5f9;
+  font-weight: 700;
+  color: #4B5563;
+}
+
+.actions-cell {
   display: flex;
-  justify-content: space-between;
-  font-weight: 600;
+  gap: 10px;
 }
 
-.product-desc {
-  margin-top: 0.5rem;
-  color: #4b5563;
+.edit-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .delete-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   background: #ef4444;
   color: white;
   border: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.85rem;
-  transition: background 0.3s ease;
 }
 
-.delete-btn:hover {
-  background: #dc2626;
+.no-items {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  font-style: italic;
 }
 
 .message {
@@ -545,6 +577,7 @@ body::before {
   border-radius: 12px;
   margin-bottom: 1.5rem;
   font-weight: 600;
+  text-align: center;
 }
 
 .message.success {
@@ -707,7 +740,7 @@ body::before {
 }
 
 .setting-label h3 {
-  color: #1F2937;
+  color: #374151;
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
@@ -975,6 +1008,115 @@ body::before {
   max-width: 700px;
 }
 
+.back-btn {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  padding: 0.6rem 1.2rem;
+  background: rgba(14, 165, 164, 0.1);
+  color: #0EA5A4;
+  border: 1.5px solid rgba(14, 165, 164, 0.2);
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.back-btn:hover {
+  background: #0EA5A4;
+  color: white;
+  transform: translateX(-5px);
+  box-shadow: 0 4px 15px rgba(14, 165, 164, 0.2);
+}
+
+.back-btn:active {
+  transform: translateX(-2px);
+}
+
+/* Image Upload Styling */
+.image-upload-group {
+  margin-top: 1rem;
+}
+
+.file-input-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.file-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-label {
+  display: block;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 2px dashed #e5e7eb;
+  border-radius: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.file-input:hover + .file-label {
+  border-color: #0ea5a4;
+  background: rgba(14, 165, 164, 0.05);
+  color: #0ea5a4;
+}
+
+.image-preview {
+  position: relative;
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 250px;
+  aspect-ratio: 16/9;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-img {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.remove-img:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
 .auth-card h2 {
   background: linear-gradient(135deg, #0EA5A4 0%, #22C55E 100%);
   -webkit-background-clip: text;
@@ -1102,7 +1244,7 @@ body::before {
 
 .form-group label {
   font-weight: 700;
-  color: #1F2937;
+  color: #374151;
   font-size: 0.95rem;
   letter-spacing: -0.2px;
 }
@@ -1115,7 +1257,7 @@ body::before {
   font-size: 1rem;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   background: white;
-  color: #1F2937;
+  color: #374151;
   font-weight: 500;
 }
 
@@ -1734,7 +1876,7 @@ body::before {
 
 .product-name {
   font-weight: 800;
-  color: #1F2937;
+  color: #374151;
   font-size: 1.05rem;
   letter-spacing: -0.3px;
   min-width: 150px;
@@ -2020,7 +2162,7 @@ body::before {
 
 .autocomplete-name {
   font-weight: 700;
-  color: #1F2937;
+  color: #374151;
   font-size: 1rem;
 }
 
@@ -2172,7 +2314,7 @@ body::before {
 
 .product-line span:first-child {
   font-weight: 700;
-  color: #1F2937;
+  color: #374151;
   flex: 1;
 }
 
@@ -2792,7 +2934,7 @@ body::before {
 /* Selection highlight */
 ::selection {
   background: rgba(14, 165, 164, 0.25);
-  color: #1F2937;
+  color: #374151;
 }
 
 /* Smooth transitions for all interactive elements */
@@ -3010,7 +3152,7 @@ textarea {
 .form-group label {
   display: block;
   margin-bottom: 0.75rem;
-  color: #1F2937;
+  color: #374151;
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: -0.2px;
@@ -3025,7 +3167,7 @@ textarea {
   font-size: 1rem;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   background: white;
-  color: #1F2937;
+  color: #374151;
   font-weight: 500;
   font-family: inherit;
 }
@@ -3134,7 +3276,7 @@ textarea {
 
 .autocomplete-name {
   font-weight: 700;
-  color: #1F2937;
+  color: #374151;
   font-size: 1rem;
   letter-spacing: -0.3px;
 }
@@ -3310,7 +3452,7 @@ textarea {
 
 .product-line span:first-child {
   font-weight: 700;
-  color: #1F2937;
+  color: #374151;
   flex: 1;
 }
 

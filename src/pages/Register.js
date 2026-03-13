@@ -1,22 +1,27 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
+    name: '',
     shopName: '',
-    ownerName: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    phone: '',
-    address: ''
+    confirmPassword: ''
   });
   const [message, setMessage] = useState({ type: '', text: '' });
   const [isLoading, setIsLoading] = useState(false);
 
-  const { register } = useContext(AuthContext);
+  const { register, user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [selectedRole] = useState(localStorage.getItem('selectedRole') || 'customer');
+
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === 'shopkeeper' ? '/dashboard' : '/catalog');
+    }
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -29,13 +34,11 @@ const Register = () => {
     e.preventDefault();
     setMessage({ type: '', text: '' });
 
-    // Validate password match
     if (formData.password !== formData.confirmPassword) {
       setMessage({ type: 'error', text: 'Passwords do not match!' });
       return;
     }
 
-    // Validate password length
     if (formData.password.length < 6) {
       setMessage({ type: 'error', text: 'Password must be at least 6 characters long!' });
       return;
@@ -44,24 +47,43 @@ const Register = () => {
     setIsLoading(true);
 
     const { confirmPassword, ...registrationData } = formData;
-    const result = await register(registrationData);
+    
+    // Prepare data based on role
+    const finalData = { 
+      email: registrationData.email,
+      password: registrationData.password,
+      role: selectedRole 
+    };
+
+    if (selectedRole === 'shopkeeper') {
+      finalData.shopName = registrationData.shopName;
+      finalData.ownerName = registrationData.name; // Mapping name to ownerName for shopkeeper
+    } else {
+      finalData.name = registrationData.name;
+    }
+
+    const result = await register(finalData);
 
     if (result.success) {
       setMessage({ type: 'success', text: result.message });
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
+      // Redirect handled by useEffect
     } else {
       setMessage({ type: 'error', text: result.message });
     }
     setIsLoading(false);
   };
 
+  const roleTitle = selectedRole === 'shopkeeper' ? 'Create Shopkeeper Account' : 'Create Customer Account';
+  const roleSubtitle = selectedRole === 'shopkeeper' 
+    ? 'Register to start managing your store' 
+    : 'Register to start shopping at StoreFlow';
+
   return (
     <div className="auth-container">
       <div className="auth-card register-card">
-        <h2>Create Shopkeeper Account</h2>
-        <p className="auth-subtitle">Register to start managing your orders</p>
+        <button className="back-btn" onClick={() => navigate('/role-selection')}>← Back</button>
+        <h2>{roleTitle}</h2>
+        <p className="auth-subtitle">{roleSubtitle}</p>
 
         {message.text && (
           <div className={message.type === 'success' ? 'success-message' : 'error-message'}>
@@ -70,9 +92,9 @@ const Register = () => {
         )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="form-row">
+          {selectedRole === 'shopkeeper' && (
             <div className="form-group">
-              <label htmlFor="shopName">Shop Name *</label>
+              <label htmlFor="shopName">Market Place Name *</label>
               <input
                 type="text"
                 id="shopName"
@@ -80,22 +102,22 @@ const Register = () => {
                 value={formData.shopName}
                 onChange={handleChange}
                 required
-                placeholder="Enter shop name"
+                placeholder="Enter your market place name"
               />
             </div>
+          )}
 
-            <div className="form-group">
-              <label htmlFor="ownerName">Owner Name *</label>
-              <input
-                type="text"
-                id="ownerName"
-                name="ownerName"
-                value={formData.ownerName}
-                onChange={handleChange}
-                required
-                placeholder="Enter owner name"
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="name">{selectedRole === 'shopkeeper' ? 'Owner Name *' : 'Full Name *'}</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              placeholder={selectedRole === 'shopkeeper' ? "Enter owner's name" : "Enter your full name"}
+            />
           </div>
 
           <div className="form-group">
@@ -111,32 +133,6 @@ const Register = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="phone">Phone Number *</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              placeholder="Enter phone number"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="address">Shop Address *</label>
-            <textarea
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              placeholder="Enter shop address"
-              rows="2"
-            />
-          </div>
-
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="password">Password *</label>
@@ -147,12 +143,12 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                placeholder="Minimum 6 characters"
+                placeholder="Min 6 chars"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password *</label>
+              <label htmlFor="confirmPassword">Confirm *</label>
               <input
                 type="password"
                 id="confirmPassword"
@@ -160,7 +156,7 @@ const Register = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
-                placeholder="Re-enter password"
+                placeholder="Re-enter"
               />
             </div>
           </div>

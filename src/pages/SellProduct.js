@@ -5,62 +5,124 @@ import config from '../config';
 
 const API_BASE_URL = config.API_URL;
 
-const SellProduct = () => {
+const InventoryManager = () => {
   const { token } = useContext(AuthContext);
-  const [formData, setFormData] = useState({ name: '', description: '', price: '' });
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    price: '', 
+    quantity: '', 
+    category: '', 
+    image: '' 
+  });
+  const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [products, setProducts] = useState([]);
+  const [displayedProducts, setDisplayedProducts] = useState([]);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!token) return;
-    const fetchProducts = async () => {
-      try {
-        const res = await axios.get(`${API_BASE_URL}/api/products`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.data.success) {
-          setProducts(res.data.data);
-        }
-      } catch (err) {
-        console.error('Error fetching products:', err.response?.data || err.message);
-      }
-    };
-    fetchProducts();
+    fetchInventory();
   }, [token]);
 
+  const fetchInventory = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/products/inventory`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.success) {
+        setProducts(res.data.data);
+        setDisplayedProducts(res.data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching inventory:', err.response?.data || err.message);
+    }
+  };
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, files } = e.target;
+    if (name === 'image' && files && files[0]) {
+      const file = files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || formData.price === '') {
-      setMessage({ type: 'error', text: 'Name and price are required.' });
+    if (!formData.name.trim() || formData.price === '' || formData.quantity === '' || !formData.category) {
+      setMessage({ type: 'error', text: 'Name, price, quantity, and category are required.' });
       return;
     }
     setLoading(true);
+
+    const submitData = new FormData();
+    submitData.append('name', formData.name);
+    submitData.append('price', formData.price);
+    submitData.append('quantity', formData.quantity);
+    submitData.append('category', formData.category);
+    if (imageFile) {
+      submitData.append('image', imageFile);
+    } else if (formData.image && typeof formData.image === 'string') {
+      submitData.append('image', formData.image);
+    }
+
     try {
-      const payload = {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        price: parseFloat(formData.price) || 0
-      };
-      const res = await axios.post(`${API_BASE_URL}/api/products`, payload, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
-      });
-      if (res.data.success) {
-        setMessage({ type: 'success', text: 'Product added successfully.' });
-        setFormData({ name: '', description: '', price: '' });
-        setProducts(prev => [res.data.data, ...prev]);
+      if (editingId) {
+        const res = await axios.put(`${API_BASE_URL}/api/products/${editingId}`, submitData, {
+          headers: { 
+            Authorization: `Bearer ${token}`, 
+            'Content-Type': 'multipart/form-data' 
+          }
+        });
+        if (res.data.success) {
+          setMessage({ type: 'success', text: 'Product updated successfully.' });
+          const newProducts = products.map(p => p._id === editingId ? res.data.data : p);
+          setProducts(newProducts);
+          setDisplayedProducts(newProducts);
+          setEditingId(null);
+          setFormData({ name: '', price: '', quantity: '', category: '', image: '' });
+          setImageFile(null);
+          setImagePreview('');
+        }
+      } else {
+        const res = await axios.post(`${API_BASE_URL}/api/products`, submitData, {
+          headers: { 
+            Authorization: `Bearer ${token}`, 
+            'Content-Type': 'multipart/form-data' 
+          }
+        });
+        if (res.data.success) {
+          setMessage({ type: 'success', text: 'Product added successfully.' });
+          setFormData({ name: '', price: '', quantity: '', category: '', image: '' });
+          setImageFile(null);
+          setImagePreview('');
+          const newProducts = [res.data.data, ...products];
+          setProducts(newProducts);
+          setDisplayedProducts(newProducts);
+        }
       }
     } catch (err) {
-      console.error('Error creating product:', err.response?.data || err.message);
-      setMessage({ type: 'error', text: 'Unable to add product. Try again.' });
+      setMessage({ type: 'error', text: 'Unable to save product. Try again.' });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEdit = (product) => {
+    setEditingId(product._id);
+    setFormData({
+      name: product.name,
+      price: product.price,
+      quantity: product.quantity,
+      category: product.category,
+      image: product.image || ''
+    });
+    window.scrollTo(0, 0);
   };
 
   const handleDelete = async (id) => {
@@ -69,77 +131,88 @@ const SellProduct = () => {
       await axios.delete(`${API_BASE_URL}/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setProducts(prev => prev.filter(p => p._id !== id));
+      const newProducts = products.filter(p => p._id !== id);
+      setProducts(newProducts);
+      setDisplayedProducts(newProducts);
     } catch (err) {
-      console.error('Error deleting product:', err.response?.data || err.message);
       alert('Could not delete product.');
     }
   };
 
+  const cancelEdit = () => {
+    setEditingId(null);
+    setFormData({ name: '', price: '', quantity: '', category: '', image: '' });
+  };
+
   return (
-    <div className="sell-product-container">
-      <h2>Product to Sell</h2>
+    <div className="inventory-container">
+      <h2>{editingId ? 'Edit Product' : 'Add New Product'}</h2>
       {message.text && (
         <div className={`message ${message.type}`}>{message.text}</div>
       )}
-      <form className="sell-product-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Name *</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+      <form className="inventory-form" onSubmit={handleSubmit}>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Product Name *</label>
+            <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+          </div>
+          <div className="form-group">
+            <label>Category *</label>
+            <select name="category" value={formData.category} onChange={handleChange} required>
+              <option value="">Select Category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Home">Home</option>
+              <option value="Groceries">Groceries</option>
+            </select>
+          </div>
         </div>
-        <div className="form-group">
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-          ></textarea>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Price ($) *</label>
+            <input type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} required />
+          </div>
+          <div className="form-group">
+            <label>Quantity *</label>
+            <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} required />
+          </div>
         </div>
-        <div className="form-group">
-          <label>Price *</label>
-          <input
-            type="number"
-            step="0.01"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            required
-          />
+        <div className="form-group image-upload-group">
+          <label>Product Image</label>
+          <div className="file-input-wrapper">
+            <input 
+              type="file" 
+              name="image" 
+              accept="image/*" 
+              onChange={handleChange} 
+              className="file-input"
+              id="product-image"
+            />
+            <label htmlFor="product-image" className="file-label">
+              {imageFile ? imageFile.name : 'Choose a photo...'}
+            </label>
+          </div>
+          {imagePreview && (
+            <div className="image-preview">
+              <img src={imagePreview} alt="Preview" />
+              <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="remove-img">×</button>
+            </div>
+          )}
+          {!imagePreview && formData.image && typeof formData.image === 'string' && (
+            <div className="image-preview">
+              <img src={formData.image.startsWith('/') ? `${API_BASE_URL}${formData.image}` : formData.image} alt="Current" />
+            </div>
+          )}
         </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : 'Add Product'}
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="save-btn" disabled={loading}>
+            {loading ? 'Saving...' : (editingId ? 'Update Product' : 'Add Product')}
+          </button>
+          {editingId && <button type="button" className="cancel-btn" onClick={cancelEdit}>Cancel</button>}
+        </div>
       </form>
-
-      <div className="product-list">
-        <h3>Your Listings</h3>
-        {products.length === 0 ? (
-          <p>No products yet.</p>
-        ) : (
-          <ul>
-            {products.map(p => (
-              <li key={p._id} className="product-item">
-                <div className="product-info">
-                  <span className="product-name">{p.name}</span>
-                  <span className="product-price">PKR {p.price.toFixed(2)}</span>
-                </div>
-                {p.description && <div className="product-desc">{p.description}</div>}
-                <button className="delete-btn" onClick={() => handleDelete(p._id)}>
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
     </div>
   );
 };
 
-export default SellProduct;
+export default InventoryManager;

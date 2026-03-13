@@ -112,18 +112,6 @@ const DeliveryPopup = ({ isOpen, onClose, shippingType = 'standard', orderDetail
             </div>
           </div>
 
-          <div className="dp-divider" />
-
-          <div className="dp-delivery-bottom">
-            <div className="dp-eta-block">
-              <span className="dp-eta-label">Estimated Delivery</span>
-              <span className="dp-eta-days" style={{ color: rule.color }}>{rule.days}</span>
-            </div>
-            <div className="dp-eta-block">
-              <span className="dp-eta-label">Arrives By</span>
-              <span className="dp-eta-date">{estimatedDate}</span>
-            </div>
-          </div>
         </div>
 
         {/* Order summary (if provided) */}
