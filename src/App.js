@@ -4,7 +4,9 @@ import { AuthProvider, AuthContext } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
+//changings
 import Dashboard from './pages/Dashboard';
+//CHANGING
 import OrderForm from './pages/OrderForm';
 import PurchasedProducts from './pages/PurchasedProducts';
 import Settings from './pages/Settings';
@@ -120,4 +122,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;
