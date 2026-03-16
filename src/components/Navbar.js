@@ -42,115 +42,53 @@ export default function Navbar() {
         {user ? (
           <div className={`nav-right ${mobileMenuOpen ? 'mobile-open' : ''}`}>
             <div className="user-info">
-              <span className="shop-name">{user.role === 'shopkeeper' ? user.shopName : user.name}</span>
-              <span className="owner-name">{user.role === 'shopkeeper' ? `Owner: ${user.name}` : `Role: Customer`}</span>
+              <span className="shop-name">{user.shopName || user.name || 'User'}</span>
+              <span className="owner-name">{user.ownerName ? `Owner: ${user.ownerName}` : 'Welcome'}</span>
             </div>
             <ul className="nav-menu">
-              {user.role === 'shopkeeper' ? (
-                <>
-                  <li className="nav-item">
-                    <Link
-                      to="/dashboard"
-                      className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
-                      onClick={closeMobileMenu}
-                    >
-                      <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                      </svg>
-                      Dashboard
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link
-                      to="/new-order"
-                      className={`nav-link ${isActive('/new-order') ? 'active' : ''}`}
-                      onClick={closeMobileMenu}
-                    >
-                      <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="16"></line>
-                        <line x1="8" y1="12" x2="16" y2="12"></line>
-                      </svg>
-                      Orders
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link
-                      to="/inventory"
-                      className={`nav-link ${isActive('/inventory') ? 'active' : ''}`}
-                      onClick={closeMobileMenu}
-                    >
-                      <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 9l1-5h16l1 5"/>
-                        <path d="M3 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/>
-                        <path d="M5 9v11h14V9"/>
-                        <path d="M9 21v-6h6v6"/>
-                      </svg>
-                      Inventory
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link
-                      to="/sell-product"
-                      className={`nav-link ${isActive('/sell-product') ? 'active' : ''}`}
-                      onClick={closeMobileMenu}
-                    >
-                      <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 5v14M5 12h14" />
-                      </svg>
-                      Add Product
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link
-                      to="/catalog"
-                      className={`nav-link ${isActive('/catalog') ? 'active' : ''}`}
-                      onClick={closeMobileMenu}
-                    >
-                      <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 9l1-5h16l1 5"/>
-                        <path d="M3 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/>
-                        <path d="M5 9v11h14V9"/>
-                      </svg>
-                      Market Place
-                    </Link>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li className="nav-item">
-                    <Link
-                      to="/catalog"
-                      className={`nav-link ${isActive('/catalog') ? 'active' : ''}`}
-                      onClick={closeMobileMenu}
-                    >
-                      <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 9l1-5h16l1 5"/>
-                        <path d="M3 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/>
-                        <path d="M5 9v11h14V9"/>
-                      </svg>
-                      Market Place
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link
-                      to="/purchased-products"
-                      className={`nav-link ${isActive('/purchased-products') ? 'active' : ''}`}
-                      onClick={closeMobileMenu}
-                    >
-                      <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                      </svg>
-                      My Orders
-                    </Link>
-                  </li>
-                </>
-              )}
+              <li className="nav-item">
+                <Link
+                  to="/dashboard"
+                  className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                  </svg>
+                  Dashboard
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  to="/new-order"
+                  className={`nav-link ${isActive('/new-order') ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  Orders
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  to="/purchased-products"
+                  className={`nav-link ${isActive('/purchased-products') ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                  </svg>
+                  My Orders
+                </Link>
+              </li>
               <li className="nav-item">
                 <Link
                   to="/settings"

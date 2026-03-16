@@ -16,7 +16,8 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      navigate(user.role === 'shopkeeper' ? '/dashboard' : '/catalog');
+      // For now, default all users to dashboard since backend doesn't support roles yet
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 
@@ -32,7 +33,7 @@ const Login = () => {
     setIsLoading(true);
     setMessage({ type: '', text: '' });
 
-    const result = await login(formData.email, formData.password, selectedRole);
+    const result = await login(formData.email, formData.password);
 
     if (result.success) {
       setMessage({ type: 'success', text: result.message });

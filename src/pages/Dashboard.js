@@ -40,19 +40,44 @@ const Dashboard = () => {
             try {
                 setLoading(true);
                 const orderRes = await axios.get(`${API_BASE_URL}/api/orders`, { headers: { Authorization: `Bearer ${token}` } });
-                const productRes = await axios.get(`${API_BASE_URL}/api/products/inventory`, { headers: { Authorization: `Bearer ${token}` } });
 
                 const orders = orderRes.data.success ? orderRes.data.data : [];
-                const inventory = productRes.data.success ? productRes.data.data : [];
 
+                // Calculate stats from orders data
                 const uniqueCustomers = new Set(orders.map(order => order.customerName));
-                const totalRevenue = orders.reduce((total, order) => total + (order.totalAmount || 0), 0);
-                const lowStockItems = inventory.filter(p => p.quantity < 10).length;
+                const totalRevenue = orders.reduce((total, order) => {
+                    const orderTotal = order.products?.reduce((sum, product) => {
+                        return sum + (product.price * product.quantity || 0);
+                    }, 0) || 0;
+                    return total + orderTotal;
+                }, 0);
+                
+                // Extract unique products from orders
+                const allProducts = new Set();
+                orders.forEach(order => {
+                    order.products?.forEach(product => {
+                        allProducts.add(product.name);
+                    });
+                });
 
-                setStats({ totalCustomers: uniqueCustomers.size, totalOrders: orders.length, totalRevenue, totalInventory: inventory.length, lowStock: lowStockItems });
+                setStats({ 
+                    totalCustomers: uniqueCustomers.size, 
+                    totalOrders: orders.length, 
+                    totalRevenue, 
+                    totalInventory: allProducts.size,
+                    lowStock: 0 // No inventory data available
+                });
                 generateActivityData(orders);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
+                // Set default values on error
+                setStats({ 
+                    totalCustomers: 0, 
+                    totalOrders: 0, 
+                    totalRevenue: 0, 
+                    totalInventory: 0,
+                    lowStock: 0
+                });
             } finally {
                 setLoading(false);
             }

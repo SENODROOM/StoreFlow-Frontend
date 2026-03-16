@@ -33,16 +33,16 @@ function AppContent() {
     <div className="App">
       <Navbar />
       <Routes>
-        <Route path="/role-selection" element={user ? <Navigate to="/" /> : <RoleSelection />} />
-        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+        <Route path="/role-selection" element={user ? <Navigate to="/dashboard" /> : <RoleSelection />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         
-        {/* Shopkeeper Routes */}
+        {/* Protected Routes */}
         <Route
           path="/dashboard"
           element={
             <PrivateRoute>
-              {user?.role === 'shopkeeper' ? <Dashboard /> : <Navigate to="/catalog" />}
+              <Dashboard />
             </PrivateRoute>
           }
         />
@@ -50,23 +50,15 @@ function AppContent() {
           path="/new-order"
           element={
             <PrivateRoute>
-              {user?.role === 'shopkeeper' ? <OrderForm /> : <Navigate to="/catalog" />}
+              <OrderForm />
             </PrivateRoute>
           }
         />
         <Route
-          path="/inventory"
+          path="/purchased-products"
           element={
             <PrivateRoute>
-              {user?.role === 'shopkeeper' ? <Inventory /> : <Navigate to="/catalog" />}
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/sell-product"
-          element={
-            <PrivateRoute>
-              {user?.role === 'shopkeeper' ? <SellProduct /> : <Navigate to="/catalog" />}
+              <PurchasedProducts />
             </PrivateRoute>
           }
         />
@@ -79,31 +71,9 @@ function AppContent() {
           }
         />
 
-        {/* Customer & Shared Routes */}
-        <Route
-          path="/catalog"
-          element={
-            <PrivateRoute>
-              <Catalog />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/purchased-products"
-          element={
-            <PrivateRoute>
-              {user?.role === 'customer' ? <PurchasedProducts /> : <Navigate to="/dashboard" />}
-            </PrivateRoute>
-          }
-        />
-
-        {/* Global Redirects */}
+        {/* Global Redirect */}
         <Route path="/" element={
-          user ? (
-            user.role === 'shopkeeper' ? <Navigate to="/dashboard" /> : <Navigate to="/catalog" />
-          ) : (
-            <Navigate to="/role-selection" />
-          )
+          user ? <Navigate to="/dashboard" /> : <Navigate to="/role-selection" />
         } />
         
         <Route path="*" element={<Navigate to="/" />} />

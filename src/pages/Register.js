@@ -8,7 +8,9 @@ const Register = () => {
     shopName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    phone: '',
+    address: ''
   });
   const [message, setMessage] = useState({ type: '', text: '' });
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +54,8 @@ const Register = () => {
     const finalData = { 
       email: registrationData.email,
       password: registrationData.password,
+      phone: registrationData.phone || '0000000000', // Default phone if not provided
+      address: registrationData.address || 'Default Address', // Default address if not provided
       role: selectedRole 
     };
 
@@ -130,6 +134,32 @@ const Register = () => {
               onChange={handleChange}
               required
               placeholder="Enter your email"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phone">Phone Number *</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              placeholder="Enter your phone number"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="address">Address *</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              required
+              placeholder="Enter your address"
             />
           </div>
 
