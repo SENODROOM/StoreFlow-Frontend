@@ -46,6 +46,18 @@ const Register = () => {
       return;
     }
 
+    // Additional validation for shopkeeper role
+    if (selectedRole === 'shopkeeper' && (!formData.shopName || !formData.name)) {
+      setMessage({ type: 'error', text: 'Shop name and owner name are required for shopkeeper registration!' });
+      return;
+    }
+
+    // Additional validation for customer role
+    if (selectedRole === 'customer' && !formData.name) {
+      setMessage({ type: 'error', text: 'Name is required for customer registration!' });
+      return;
+    }
+
     setIsLoading(true);
 
     const { confirmPassword, ...registrationData } = formData;
